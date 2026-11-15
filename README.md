@@ -19,17 +19,15 @@ This is a **frontend-only** application built with React, Vite, and SheetJS (`xl
   3. `Y23 IV BTECH REG PHY AND CHEM` (IV B.Tech Physics & Chemistry)
   4. `Y23 IV BTECH REG & ADDL COURSES` (IV B.Tech Regular & Additional Labs)
   5. `Y23 IV BTECH PSICP` (IV B.Tech PSICP Lab Schedules)
-- **Student Profile & "My Subjects" Dashboard (NEW):**
-  - Interactive profile dropdown for **Lokeswar Reddy** on the navigation bar with click-outside detection.
-  - Dedicated personal dashboard displaying 5 registered subjects & assigned sections:
-    1. `24AD3107` | DATA SCIENCE | Section-68
-    2. `24CS2257F` | DATA ENGINEERING FOR FINANCIAL SYSTEMS | Section-52
-    3. `24SDCS03` | SOA PROGRAMMING AND MICROSERVICES | Section-55
-    4. `24GAM3101` | NATURAL LANGUAGE PROCESSING AND APPLICATIONS | Section-54
-    5. `24IN3103HF` | REAL-TIME OPERATING SYSTEMS | Section-51
-  - Summary metrics: Total Subjects (5), Total Sections (5).
-  - Responsive layout (3 columns desktop, 2 columns tablet, 1 column mobile).
-  - 1-click "Back to Schedule Search" navigation.
+- **Student-Wise Examination Timetable Dashboard (NEW):**
+  - Navigation bar dropdown titled **"Select Student"** with 4 original students:
+    1. **Lokeswar Reddy** (5 registered subjects)
+    2. **Balaji** (6 registered subjects)
+    3. **Avinash** (5 registered subjects)
+    4. **Akshay** (6 registered subjects)
+  - Real-time matching against worksheet `Y24 III BTECH` using normalized CourseCode and Section.
+  - Displays chronological examination timetable with date, timing, room number, department, and LTPS.
+  - 1-click navigation between "All Exams (General Schedule)" and "My Exams (Student Timetable)".
 - **Automatic Grouping of Student Records:**
   - Groups identical schedules (same subject, section, date, time, and room/venue) into a single consolidated schedule card with total enrolled student count.
 - **Interactive Multi-Filter System:**

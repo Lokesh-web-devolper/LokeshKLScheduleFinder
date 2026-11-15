@@ -68,7 +68,7 @@ export const STUDENTS_DATA = [
         iconType: 'database'
       },
       {
-        courseCode: '224IN2224F',
+        courseCode: '24IN2224F',
         courseName: 'EMBEDDED SYSTEMS INTERFACING & COMMUNICATION PROTOCOLS',
         section: 'Section-02',
         category: 'Embedded Systems & Hardware',
@@ -167,7 +167,7 @@ export const STUDENTS_DATA = [
         iconType: 'database'
       },
       {
-        courseCode: '224IN2224F',
+        courseCode: '24IN2224F',
         courseName: 'EMBEDDED SYSTEMS INTERFACING & COMMUNICATION PROTOCOLS',
         section: 'Section-52',
         category: 'Embedded Systems & Hardware',
