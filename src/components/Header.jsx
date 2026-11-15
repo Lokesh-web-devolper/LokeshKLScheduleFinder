@@ -30,8 +30,8 @@ export default function Header({
             <GraduationCap className="brand-icon" size={28} />
           </div>
           <div className="brand-text">
-            <div className="university-title">K L DEEMED TO BE UNIVERSITY</div>
-            <div className="portal-name">KL Schedule Finder</div>
+            <div className="university-title">AKSHAY VARMA</div>
+            <div className="portal-name">KL   LEADER</div>
           </div>
         </div>
 
