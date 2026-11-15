@@ -19,6 +19,17 @@ This is a **frontend-only** application built with React, Vite, and SheetJS (`xl
   3. `Y23 IV BTECH REG PHY AND CHEM` (IV B.Tech Physics & Chemistry)
   4. `Y23 IV BTECH REG & ADDL COURSES` (IV B.Tech Regular & Additional Labs)
   5. `Y23 IV BTECH PSICP` (IV B.Tech PSICP Lab Schedules)
+- **Student Profile & "My Subjects" Dashboard (NEW):**
+  - Interactive profile dropdown for **Lokeswar Reddy** on the navigation bar with click-outside detection.
+  - Dedicated personal dashboard displaying 5 registered subjects & assigned sections:
+    1. `24AD3107` | DATA SCIENCE | Section-68
+    2. `24CS2257F` | DATA ENGINEERING FOR FINANCIAL SYSTEMS | Section-52
+    3. `24SDCS03` | SOA PROGRAMMING AND MICROSERVICES | Section-55
+    4. `24GAM3101` | NATURAL LANGUAGE PROCESSING AND APPLICATIONS | Section-54
+    5. `24IN3103HF` | REAL-TIME OPERATING SYSTEMS | Section-51
+  - Summary metrics: Total Subjects (5), Total Sections (5).
+  - Responsive layout (3 columns desktop, 2 columns tablet, 1 column mobile).
+  - 1-click "Back to Schedule Search" navigation.
 - **Automatic Grouping of Student Records:**
   - Groups identical schedules (same subject, section, date, time, and room/venue) into a single consolidated schedule card with total enrolled student count.
 - **Interactive Multi-Filter System:**
@@ -62,13 +73,17 @@ exceldata/
 ├── src/
 │   ├── assets/
 │   ├── components/
-│   │   ├── Header.jsx              # University branding, academic year & upload CTA
+│   │   ├── Header.jsx              # University branding, student dropdown & upload CTA
 │   │   ├── Hero.jsx                # Hero heading, search bar, and popular courses
 │   │   ├── SearchFilters.jsx       # Academic year, subject, section & text filters
 │   │   ├── ScheduleCard.jsx        # Rich schedule card with icons and actions
 │   │   ├── Statistics.jsx          # Live workbook statistics (records, subjects, sections)
 │   │   ├── ExcelUpload.jsx         # Modal for drag-and-drop Excel file uploads
+│   │   ├── SubjectCard.jsx         # Personal subject card with custom subtle accent colors
+│   │   ├── MySubjectsDashboard.jsx # Lokeswar Reddy's registered subjects dashboard
 │   │   └── Footer.jsx              # Portal copyright and security notices
+│   ├── data/
+│   │   └── studentData.js          # Registered courses & profile for Lokeswar Reddy
 │   ├── utils/
 │   │   ├── excelParser.js          # Dynamic header detection, date normalization, grouping
 │   │   └── scheduleUtils.js        # Filtering, dynamic options, statistics, .ics generator

@@ -120,6 +120,23 @@ export default function SearchFilters({
         </div>
 
         {/* 4. Keyword Search Input */}
+        <div className="filter-control-group">
+          <label htmlFor="keyword-search-input" className="filter-label">
+            <Building size={16} className="label-icon" />
+            <span>Search Text (Venue / Room / Code)</span>
+          </label>
+          <div className="input-search-wrapper">
+            <Search size={16} className="input-search-icon" />
+            <input
+              id="keyword-search-input"
+              type="text"
+              placeholder="e.g. C519, R706B, CSE, F102..."
+              value={searchQuery}
+              onChange={(e) => onSearchQueryChange(e.target.value)}
+              className="filter-input"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Action Buttons */}

@@ -1,17 +1,36 @@
 import React from 'react';
-import { GraduationCap, CalendarDays, Upload, Layers } from 'lucide-react';
+import {
+  GraduationCap,
+  CalendarDays,
+  Upload,
+  Layers,
+  CalendarSearch
+} from 'lucide-react';
+import StudentDropdown from './StudentDropdown';
 
-export default function Header({ sheetCount, onOpenUpload }) {
+export default function Header({
+  sheetCount,
+  onOpenUpload,
+  currentView,
+  selectedStudent,
+  onSelectStudent,
+  onNavigateToSchedule
+}) {
   return (
     <header className="header-container">
       <div className="header-inner">
         {/* University Brand & Logo */}
-        <div className="brand-group">
+        <div
+          className="brand-group"
+          onClick={onNavigateToSchedule}
+          style={{ cursor: 'pointer' }}
+          title="Return to KL University Schedule Finder"
+        >
           <div className="brand-icon-wrapper">
             <GraduationCap className="brand-icon" size={28} />
           </div>
           <div className="brand-text">
-            <div className="university-title">LOKESWAR REDDY</div>
+            <div className="university-title">K L DEEMED TO BE UNIVERSITY</div>
             <div className="portal-name">KL Schedule Finder</div>
           </div>
         </div>
@@ -37,6 +56,18 @@ export default function Header({ sheetCount, onOpenUpload }) {
             </div>
           )}
 
+          {currentView === 'student-timetable' && (
+            <button
+              type="button"
+              onClick={onNavigateToSchedule}
+              className="meta-pill general-search-btn"
+              title="Return to General Schedule Search"
+            >
+              <CalendarSearch size={15} />
+              <span>General Schedule</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={onOpenUpload}
@@ -46,6 +77,12 @@ export default function Header({ sheetCount, onOpenUpload }) {
             <Upload size={16} />
             <span>Upload Excel</span>
           </button>
+
+          {/* Student Selector Dropdown with 4 Students */}
+          <StudentDropdown
+            selectedStudent={selectedStudent}
+            onSelectStudent={onSelectStudent}
+          />
         </div>
       </div>
     </header>

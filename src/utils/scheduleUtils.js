@@ -214,3 +214,99 @@ export function downloadIcsCalendar(schedule) {
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
+
+/**
+ * Normalizes section string for flexible comparison
+ * Handles 'Section-68', 'Section-02', 'S2', 'SEC 68', 'S-68', etc.
+ */
+export function normalizeSection(sec) {
+  if (!sec) return '';
+  return String(sec)
+    .trim()
+    .toUpperCase()
+    .replace(/^(SECTION|SEC)[-\s]*/i, '')
+    .replace(/^S[-\s]*/i, '')
+    .replace(/^0+/, '') // '02' -> '2', '05' -> '5'
+    .replace(/[-\s]/g, '');
+}
+
+export function sectionsMatch(studentSection, excelSection) {
+  if (!studentSection || !excelSection) return false;
+  return normalizeSection(studentSection) === normalizeSection(excelSection);
+}
+
+/**
+ * Matches student's registered subjects and sections against original Excel schedules
+ * Uses sheet 'Y24 III BTECH' records
+ * Sorts examination cards chronologically by date and time
+ */
+export function matchStudentExamSchedule(student, schedules) {
+  if (!student || !Array.isArray(student.subjects) || !Array.isArray(schedules)) {
+    return [];
+  }
+
+  // Filter schedules to III B.Tech / Y24 sheet
+  const year3Schedules = schedules.filter(
+    (s) => s.academicYear === 'III B.Tech' || (s.sourceSheet && s.sourceSheet.includes('Y24'))
+  );
+
+  const matchedList = student.subjects.map((sub) => {
+    // Find matching record by courseCode AND section
+    const match = year3Schedules.find((item) => {
+      const codeMatch = item.courseCode.toUpperCase() === sub.courseCode.toUpperCase();
+      const secMatch = sectionsMatch(sub.section, item.section);
+      return codeMatch && secMatch;
+    });
+
+    if (match) {
+      return {
+        id: `match-${student.id}-${sub.courseCode}`,
+        courseCode: sub.courseCode,
+        subjectName: match.courseName || sub.courseName,
+        section: sub.section,
+        excelSection: match.section,
+        examDate: match.formattedDate,
+        rawDate: match.date || '',
+        examTime: match.time,
+        venue: match.venue || 'TBA',
+        department: match.dept || 'Engineering Dept',
+        ltps: match.ltps || '',
+        duration: match.duration || '2 Hours',
+        category: sub.category,
+        iconType: sub.iconType,
+        isFound: true,
+        sourceSheet: match.sourceSheet
+      };
+    }
+
+    return {
+      id: `nomatch-${student.id}-${sub.courseCode}`,
+      courseCode: sub.courseCode,
+      subjectName: sub.courseName,
+      section: sub.section,
+      excelSection: null,
+      examDate: 'Exam schedule not available',
+      rawDate: '9999-99-99',
+      examTime: 'Exam schedule not available for this subject/section.',
+      venue: 'Exam schedule not available for this subject/section.',
+      department: '—',
+      ltps: '',
+      duration: '—',
+      category: sub.category,
+      iconType: sub.iconType,
+      isFound: false,
+      sourceSheet: 'Y24 III BTECH'
+    };
+  });
+
+  // Sort by date (ascending) and time
+  return matchedList.sort((a, b) => {
+    if (a.isFound && !b.isFound) return -1;
+    if (!a.isFound && b.isFound) return 1;
+
+    if (a.rawDate !== b.rawDate) {
+      return a.rawDate.localeCompare(b.rawDate);
+    }
+    return a.examTime.localeCompare(b.examTime);
+  });
+}

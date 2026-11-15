@@ -6,6 +6,7 @@ import Statistics from './components/Statistics';
 import SearchFilters from './components/SearchFilters';
 import ScheduleCard from './components/ScheduleCard';
 import ExcelUpload from './components/ExcelUpload';
+import StudentTimetableDashboard from './components/StudentTimetableDashboard';
 import Footer from './components/Footer';
 
 import { parseExcelWorkbook } from './utils/excelParser';
@@ -16,6 +17,7 @@ import {
   getSectionsForSubject,
   calculateStatistics
 } from './utils/scheduleUtils';
+import { DEFAULT_STUDENT } from './data/students';
 
 import {
   RotateCcw,
@@ -39,6 +41,11 @@ export default function App() {
   const [error, setError] = useState(null);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [isDefaultLoaded, setIsDefaultLoaded] = useState(true);
+
+  // Active view: 'schedule' or 'student-timetable'
+  const [currentView, setCurrentView] = useState('schedule');
+  // Currently selected student profile (default: Lokeswar Reddy)
+  const [selectedStudent, setSelectedStudent] = useState(DEFAULT_STUDENT);
 
   // Filter States
   const [selectedYear, setSelectedYear] = useState('ALL');
@@ -193,6 +200,13 @@ export default function App() {
     setDisplayLimit(24);
   };
 
+  // Handle student selection from dropdown
+  const handleSelectStudent = (student) => {
+    setSelectedStudent(student);
+    setCurrentView('student-timetable');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Filtered schedule results based on committed filters or live search query
   const filteredSchedules = useMemo(() => {
     return filterSchedules(schedules, {
@@ -217,229 +231,246 @@ export default function App() {
 
   return (
     <div className="app-layout">
-      {/* 1. Header */}
+      {/* 1. Header with Student Selection Dropdown */}
       <Header
         sheetCount={sheetData.sheets.length}
         onOpenUpload={() => setUploadModalOpen(true)}
+        currentView={currentView}
+        selectedStudent={selectedStudent}
+        onSelectStudent={handleSelectStudent}
+        onNavigateToSchedule={() => setCurrentView('schedule')}
       />
 
       <main className="main-content">
-        {/* 2. Hero Section */}
-        <Hero
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          onSearchSubmit={handleSearchSubmit}
-        />
-
-        {/* 3. Dashboard Statistics */}
-        <div className="content-container">
-          <Statistics
-            statistics={statistics}
-            sheetCount={sheetData.sheets.length}
-            totalRawRows={sheetData.totalRawRows}
-          />
-
-          {/* Error Banner if any */}
-          {error && (
-            <div className="error-banner">
-              <AlertCircle size={22} className="error-icon" />
-              <div className="error-content">
-                <strong>Schedule Data Notice:</strong> {error}
-                <div className="error-action">
-                  <button
-                    type="button"
-                    onClick={() => setUploadModalOpen(true)}
-                    className="error-upload-btn"
-                  >
-                    <FileSpreadsheet size={16} />
-                    <span>Upload Excel File Now</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 4. Main Search Filters */}
-          <div id="schedule-results-anchor" className="filters-section-anchor">
-            <SearchFilters
-              academicYears={academicYears}
-              selectedYear={selectedYear}
-              onYearChange={handleYearChange}
-              availableSubjects={availableSubjects}
-              selectedSubject={selectedSubject}
-              onSubjectChange={handleSubjectChange}
-              availableSections={availableSections}
-              selectedSection={selectedSection}
-              onSectionChange={setSelectedSection}
-              searchQuery={searchQuery}
-              onSearchQueryChange={setSearchQuery}
-              onSearch={handleSearchSubmit}
-              onReset={handleResetFilters}
-              resultsCount={filteredSchedules.length}
-              totalCount={schedules.length}
+        {/* View Switcher: Student-wise Exam Timetable Dashboard vs General Schedule Finder */}
+        {currentView === 'student-timetable' ? (
+          <div className="content-container student-timetable-page-wrap">
+            <StudentTimetableDashboard
+              student={selectedStudent}
+              schedules={schedules}
+              onBackToSchedule={() => setCurrentView('schedule')}
             />
           </div>
+        ) : (
+          <>
+            {/* 2. Hero Section */}
+            <Hero
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              onSearchSubmit={handleSearchSubmit}
+            />
 
-          {/* 5. Results Section */}
-          <section className="results-section">
-            <div className="results-header-bar">
-              <div className="results-title-group">
-                <h3 className="results-heading">
-                  Examination & Laboratory Schedules
-                </h3>
-                <span className="results-count-badge">
-                  {filteredSchedules.length}{' '}
-                  {filteredSchedules.length === 1 ? 'match found' : 'matches found'}
-                </span>
+            {/* 3. Dashboard Statistics */}
+            <div className="content-container">
+              <Statistics
+                statistics={statistics}
+                sheetCount={sheetData.sheets.length}
+                totalRawRows={sheetData.totalRawRows}
+              />
+
+              {/* Error Banner if any */}
+              {error && (
+                <div className="error-banner">
+                  <AlertCircle size={22} className="error-icon" />
+                  <div className="error-content">
+                    <strong>Schedule Data Notice:</strong> {error}
+                    <div className="error-action">
+                      <button
+                        type="button"
+                        onClick={() => setUploadModalOpen(true)}
+                        className="error-upload-btn"
+                      >
+                        <FileSpreadsheet size={16} />
+                        <span>Upload Excel File Now</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 4. Main Search Filters */}
+              <div id="schedule-results-anchor" className="filters-section-anchor">
+                <SearchFilters
+                  academicYears={academicYears}
+                  selectedYear={selectedYear}
+                  onYearChange={handleYearChange}
+                  availableSubjects={availableSubjects}
+                  selectedSubject={selectedSubject}
+                  onSubjectChange={handleSubjectChange}
+                  availableSections={availableSections}
+                  selectedSection={selectedSection}
+                  onSectionChange={setSelectedSection}
+                  searchQuery={searchQuery}
+                  onSearchQueryChange={setSearchQuery}
+                  onSearch={handleSearchSubmit}
+                  onReset={handleResetFilters}
+                  resultsCount={filteredSchedules.length}
+                  totalCount={schedules.length}
+                />
               </div>
 
-              {/* View Toggle (Grid / Table) */}
-              <div className="view-toggle-bar">
-                <button
-                  type="button"
-                  onClick={() => setViewMode('grid')}
-                  className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
-                  title="Card Grid View"
-                  aria-label="Card Grid View"
-                >
-                  <LayoutGrid size={17} />
-                  <span>Grid</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('table')}
-                  className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
-                  title="Compact Table View"
-                  aria-label="Compact Table View"
-                >
-                  <List size={17} />
-                  <span>Table</span>
-                </button>
-              </div>
+              {/* 5. Results Section */}
+              <section className="results-section">
+                <div className="results-header-bar">
+                  <div className="results-title-group">
+                    <h3 className="results-heading">
+                      Examination & Laboratory Schedules
+                    </h3>
+                    <span className="results-count-badge">
+                      {filteredSchedules.length}{' '}
+                      {filteredSchedules.length === 1 ? 'match found' : 'matches found'}
+                    </span>
+                  </div>
+
+                  {/* View Toggle (Grid / Table) */}
+                  <div className="view-toggle-bar">
+                    <button
+                      type="button"
+                      onClick={() => setViewMode('grid')}
+                      className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                      title="Card Grid View"
+                      aria-label="Card Grid View"
+                    >
+                      <LayoutGrid size={17} />
+                      <span>Grid</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode('table')}
+                      className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
+                      title="Compact Table View"
+                      aria-label="Compact Table View"
+                    >
+                      <List size={17} />
+                      <span>Table</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Loading State */}
+                {loading && (
+                  <div className="loading-card">
+                    <div className="loader-spinner"></div>
+                    <div className="loader-text">
+                      Loading and preparing KL University Examination Schedule...
+                    </div>
+                  </div>
+                )}
+
+                {/* Empty State */}
+                {!loading && filteredSchedules.length === 0 && (
+                  <div className="empty-results-box">
+                    <div className="empty-icon-wrap">
+                      <Calendar size={48} className="empty-icon" />
+                    </div>
+                    <h4 className="empty-title">
+                      No schedule found. Please check your subject and section.
+                    </h4>
+                    <p className="empty-desc">
+                      Try adjusting your academic year, subject, or section filter, or clear
+                      the search bar to see all available university schedules.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleResetFilters}
+                      className="empty-reset-btn"
+                    >
+                      <RotateCcw size={16} />
+                      <span>Reset All Filters</span>
+                    </button>
+                  </div>
+                )}
+
+                {/* Results Grid View */}
+                {!loading && filteredSchedules.length > 0 && viewMode === 'grid' && (
+                  <>
+                    <div className="schedules-grid">
+                      {visibleSchedules.map((schedule) => (
+                        <ScheduleCard key={schedule.id} schedule={schedule} />
+                      ))}
+                    </div>
+
+                    {/* Load More Button */}
+                    {hasMore && (
+                      <div className="load-more-container">
+                        <button
+                          type="button"
+                          onClick={() => setDisplayLimit((prev) => prev + 24)}
+                          className="load-more-btn"
+                        >
+                          <span>
+                            Show More Schedules ({filteredSchedules.length - displayLimit}{' '}
+                            remaining)
+                          </span>
+                          <ChevronDown size={18} />
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* Results Table View */}
+                {!loading && filteredSchedules.length > 0 && viewMode === 'table' && (
+                  <div className="table-responsive-wrapper">
+                    <table className="schedule-table">
+                      <thead>
+                        <tr>
+                          <th>Year</th>
+                          <th>Course Code</th>
+                          <th>Course Name</th>
+                          <th>Section</th>
+                          <th>Date</th>
+                          <th>Timing</th>
+                          <th>Duration</th>
+                          <th>Room / Venue</th>
+                          <th>Department</th>
+                          <th>Enrolled</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {visibleSchedules.map((s) => (
+                          <tr key={s.id}>
+                            <td>
+                              <span className="table-year-badge">{s.academicYear}</span>
+                            </td>
+                            <td>
+                              <strong className="code-text">{s.courseCode}</strong>
+                            </td>
+                            <td className="course-name-cell">{s.courseName}</td>
+                            <td>
+                              <span className="table-sec-badge">{s.section}</span>
+                            </td>
+                            <td className="date-cell">{s.formattedDate}</td>
+                            <td className="time-cell">{s.time}</td>
+                            <td>{s.duration}</td>
+                            <td className="venue-cell">
+                              <strong>{s.venue}</strong>
+                            </td>
+                            <td>{s.dept || '—'}</td>
+                            <td className="count-cell">{s.studentCount}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    {hasMore && (
+                      <div className="load-more-container">
+                        <button
+                          type="button"
+                          onClick={() => setDisplayLimit((prev) => prev + 24)}
+                          className="load-more-btn"
+                        >
+                          <span>Show More ({filteredSchedules.length - displayLimit} remaining)</span>
+                          <ChevronDown size={18} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </section>
             </div>
-
-            {/* Loading State */}
-            {loading && (
-              <div className="loading-card">
-                <div className="loader-spinner"></div>
-                <div className="loader-text">
-                  Loading and preparing KL University Examination Schedule...
-                </div>
-              </div>
-            )}
-
-            {/* Empty State */}
-            {!loading && filteredSchedules.length === 0 && (
-              <div className="empty-results-box">
-                <div className="empty-icon-wrap">
-                  <Calendar size={48} className="empty-icon" />
-                </div>
-                <h4 className="empty-title">
-                  No schedule found. Please check your subject and section.
-                </h4>
-                <p className="empty-desc">
-                  Try adjusting your academic year, subject, or section filter, or clear
-                  the search bar to see all available university schedules.
-                </p>
-                <button
-                  type="button"
-                  onClick={handleResetFilters}
-                  className="empty-reset-btn"
-                >
-                  <RotateCcw size={16} />
-                  <span>Reset All Filters</span>
-                </button>
-              </div>
-            )}
-
-            {/* Results Grid View */}
-            {!loading && filteredSchedules.length > 0 && viewMode === 'grid' && (
-              <>
-                <div className="schedules-grid">
-                  {visibleSchedules.map((schedule) => (
-                    <ScheduleCard key={schedule.id} schedule={schedule} />
-                  ))}
-                </div>
-
-                {/* Load More Button */}
-                {hasMore && (
-                  <div className="load-more-container">
-                    <button
-                      type="button"
-                      onClick={() => setDisplayLimit((prev) => prev + 24)}
-                      className="load-more-btn"
-                    >
-                      <span>
-                        Show More Schedules ({filteredSchedules.length - displayLimit}{' '}
-                        remaining)
-                      </span>
-                      <ChevronDown size={18} />
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* Results Table View */}
-            {!loading && filteredSchedules.length > 0 && viewMode === 'table' && (
-              <div className="table-responsive-wrapper">
-                <table className="schedule-table">
-                  <thead>
-                    <tr>
-                      <th>Year</th>
-                      <th>Course Code</th>
-                      <th>Course Name</th>
-                      <th>Section</th>
-                      <th>Date</th>
-                      <th>Timing</th>
-                      <th>Duration</th>
-                      <th>Room / Venue</th>
-                      <th>Department</th>
-                      <th>Enrolled</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visibleSchedules.map((s) => (
-                      <tr key={s.id}>
-                        <td>
-                          <span className="table-year-badge">{s.academicYear}</span>
-                        </td>
-                        <td>
-                          <strong className="code-text">{s.courseCode}</strong>
-                        </td>
-                        <td className="course-name-cell">{s.courseName}</td>
-                        <td>
-                          <span className="table-sec-badge">{s.section}</span>
-                        </td>
-                        <td className="date-cell">{s.formattedDate}</td>
-                        <td className="time-cell">{s.time}</td>
-                        <td>{s.duration}</td>
-                        <td className="venue-cell">
-                          <strong>{s.venue}</strong>
-                        </td>
-                        <td>{s.dept || '—'}</td>
-                        <td className="count-cell">{s.studentCount}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                {hasMore && (
-                  <div className="load-more-container">
-                    <button
-                      type="button"
-                      onClick={() => setDisplayLimit((prev) => prev + 24)}
-                      className="load-more-btn"
-                    >
-                      <span>Show More ({filteredSchedules.length - displayLimit} remaining)</span>
-                      <ChevronDown size={18} />
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </section>
-        </div>
+          </>
+        )}
       </main>
 
       {/* 6. Excel Upload Modal */}
